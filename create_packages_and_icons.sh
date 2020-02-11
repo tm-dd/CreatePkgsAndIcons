@@ -35,6 +35,9 @@ cd $dirname
 OIFS=$IFS
 IFS=$'\n'
 
+# the name of the temporaery script (do not overwrite this in the config file)
+TMPFILE="/tmp/tmp_"`date +%s`"_create_pkg.sh"
+
 # read the global settings for all Applications or files in the same directory
 DEFAULTCONFIGFILE="./_create_packages_and_icons.config"
 if [ -f "$DEFAULTCONFIGFILE" ]; then . "$DEFAULTCONFIGFILE"; else echo "ERROR BY READING FILE: $DEFAULTCONFIGFILE"; exit -1; fi
