@@ -191,7 +191,14 @@ do
     #
     # define an version number for the package
     #
-    DEFAULTVERSION=$(date '+0.0.%Y.%m.%d.%H%M')
+    if [ $CONTENTONLY == 'y' ]
+    then
+        # normally changing will be in a subdirectory here -> use the current date version number
+        DEFAULTVERSION=$(date '+0.0.%Y.%m.%d')
+    else
+        # for Apps without a version number -> use the date of the last change of the software (folder)
+        DEFAULTVERSION=$(date -r `stat -f "%m" "$i"` '+0.0.%Y.%m.%d')
+    fi
     INFOFILE=''; APPSHORTVERSION=''
     # if Info.plist exists, try to fetch the short version number
     if [ -f "${APPDIR}/Contents/Info.plist" ]
