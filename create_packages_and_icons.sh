@@ -91,6 +91,9 @@ echo '# create packages ...' > $TMPFILE
 for i in $(ls -1 | grep -i -v "^Applications\|^\_\|.DS_Store$\|.dmg$\|.pkg$\|.mpkg$")
 do
 
+    # mask the character '"' in names like: 'Example" name.app'
+    i=`echo "$i" | sed 's/"/\\\"/g'`
+
     # searching for the App
     APPDIR=`find $dirname/$i | grep '.app$' | awk '{ print length " " $0 }' | sort -n | cut -d " " -f2- | head -n 1`
     if [ "$APPDIR" != "" ]; then echo -e "\nFOUND APP AND CREATE PACKAGE: $APPDIR"; fi
@@ -218,7 +221,7 @@ do
     then
         CONTENTDIR='creating_package_tmp'
         echo 'mkdir "'$CONTENTDIR'" || (echo "ERROR: MAYBE OLD FILES IN: '$CONTENTDIR' ???"; sleep 10000 )' >> $TMPFILE
-        echo "mv '$i' '${CONTENTDIR}/'" >> $TMPFILE
+        echo 'mv "'$i'" "'${CONTENTDIR}'/"' >> $TMPFILE
     else
         CONTENTDIR=$i
     fi
@@ -241,12 +244,12 @@ do
     fi
     
     # write the line to create the package
-    echo "( set -x; pkgbuild ${MOREOPT} --scripts '$PKGPATH/_tmp_build_files/$SOFTWAREID' --identifier '${PREFIX_IDENTIFIER}${SOFTWAREID}' --version '$PKGVERSION' --root '$CONTENTDIR' --install-location '$TARGETDIR' '${PKGPATH}/${PKGNAME}.pkg' )" >> $TMPFILE
+    echo "( set -x; pkgbuild ${MOREOPT} --scripts '$PKGPATH/_tmp_build_files/$SOFTWAREID' --identifier '${PREFIX_IDENTIFIER}${SOFTWAREID}' --version '$PKGVERSION' --root '$CONTENTDIR' --install-location '$TARGETDIR' \"${PKGPATH}/${PKGNAME}.pkg\" )" >> $TMPFILE
 
     # remove the files back from the temporary directory
     if [ $CONTENTONLY != 'y' ]
     then
-        echo "mv '${CONTENTDIR}/${i}' '$i'" >> $TMPFILE
+        echo 'mv "'${CONTENTDIR}/${i}'" "'$i'"' >> $TMPFILE
         echo "rmdir '$CONTENTDIR'" >> $TMPFILE
     fi
     
@@ -265,8 +268,7 @@ do
     fi
     
     # write an uninstall script
-    DelName=`echo "$TARGETDIR/$i" | sed "s/'/\\\\\'/g"`     # mask the character "'" in names like: "/Applications/TNEF's Enough.app"
-    echo 'echo sudo rm -rfv \"'$DelName'\" >> "/tmp/uninstall_'$DIRNAMEAPP'.sh"' >> $UNINSTALLSCRIPT
+    echo 'echo sudo rm -rfv \"'$TARGETDIR'/'$i'\" >> "/tmp/uninstall_'$DIRNAMEAPP'.sh"' >> $UNINSTALLSCRIPT
     echo 'echo sudo pkgutil --forget "'$PREFIX_IDENTIFIER$SOFTWAREID'" >> "/tmp/uninstall_'$DIRNAMEAPP'.sh"' >> $UNINSTALLSCRIPT
     echo -e 'echo >> "/tmp/uninstall_'$DIRNAMEAPP'.sh"\n' >> $UNINSTALLSCRIPT
     
@@ -300,7 +302,7 @@ chmod 755 $UNINSTALLSCRIPT
 
 # show the temporary script
 echo
-echo "Start creating packages in 10 seconds. Last chance to break this script ... "
+echo "Start creating packages in 10 seconds. Last chance to break this script ('$TMPFILE') ... "
 echo
 cat $TMPFILE | grep -v 'set -x'
 echo -e "\n********************\n\n"
