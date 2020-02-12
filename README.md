@@ -13,7 +13,7 @@ Install and configure:
 
 Advanced option:
 
-* you can define separed options for all of your Apps
+* you can define separated settings for Apps in the same folders
 
 Example config file for the App "Jami.app" to define a version number like: 1.0.0.2020.02.12.1005
 
