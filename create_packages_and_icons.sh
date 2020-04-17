@@ -80,6 +80,9 @@ fi
 
 ########################################
 
+echo
+echo 'Start creating of '`ls -1 | grep -i -v "^Applications\|^\_\|.DS_Store$\|.dmg$\|.pkg$\|.mpkg$" | wc -l`' packages in 5 seconds.'
+sleep 5
 
 # create new temp script with the commands to create packages
 echo
